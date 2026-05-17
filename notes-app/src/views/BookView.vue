@@ -53,6 +53,10 @@ import { debounce } from '@/utils/debounce'
 import { ElMessage } from 'element-plus'
 import type { NoteSummary } from '@/types'
 
+// Declared to consume route params passed via `props: true` (avoids Vue warning
+// about extraneous attributes on multi-root component).
+defineProps<{ bookSlug?: string; noteId?: string }>()
+
 const route = useRoute()
 const booksStore = useBooksStore()
 const notesStore = useNotesStore()
