@@ -14,6 +14,7 @@ export const useSearchStore = defineStore('search', () => {
   const results = ref<SearchResult[]>([])
   const recentQueries = ref<string[]>(storageGet<string[]>(RECENT_KEY, []))
   const error = ref<string | null>(null)
+  const allIndexed = ref<SearchableNote[]>([])
 
   async function ensureIndex(): Promise<void> {
     if (indexBuilt.value) return
@@ -37,6 +38,7 @@ export const useSearchStore = defineStore('search', () => {
         }
       }
       searchSvc.buildIndex(all)
+      allIndexed.value = all
       indexBuilt.value = true
     } catch (e) {
       error.value = (e as Error).message
@@ -58,6 +60,7 @@ export const useSearchStore = defineStore('search', () => {
     searchSvc.resetIndex()
     indexBuilt.value = false
     results.value = []
+    allIndexed.value = []
   }
 
   return {
@@ -66,6 +69,7 @@ export const useSearchStore = defineStore('search', () => {
     results,
     recentQueries,
     error,
+    allIndexed,
     ensureIndex,
     query,
     invalidate,

@@ -84,4 +84,15 @@ describe('useSearchStore', () => {
     expect(s.results).toEqual([])
     expect(searchSvc.resetIndex).toHaveBeenCalledOnce()
   })
+
+  it('exposes allIndexed after ensureIndex', async () => {
+    vi.mocked(github.listBooks).mockResolvedValueOnce([{ slug: 'b', name: 'B' }])
+    vi.mocked(github.listNotes).mockResolvedValueOnce([
+      { id: 'x', slug: 'x', title: 'X', filePath: 'p' },
+    ])
+    const s = useSearchStore()
+    await s.ensureIndex()
+    expect(s.allIndexed).toHaveLength(1)
+    expect(s.allIndexed[0].id).toBe('x')
+  })
 })
