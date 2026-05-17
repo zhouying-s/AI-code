@@ -10,7 +10,8 @@ describe('retry', () => {
   })
 
   it('retries until success', async () => {
-    const fn = vi.fn()
+    const fn = vi
+      .fn()
       .mockRejectedValueOnce(new Error('boom'))
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce('ok')

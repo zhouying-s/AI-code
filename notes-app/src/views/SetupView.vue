@@ -6,12 +6,7 @@
 
       <el-form :model="form" label-position="top" @submit.prevent="onSubmit">
         <el-form-item label="GitHub Personal Access Token (PAT)" required>
-          <el-input
-            v-model="form.githubPat"
-            type="password"
-            show-password
-            placeholder="ghp_..."
-          />
+          <el-input v-model="form.githubPat" type="password" show-password placeholder="ghp_..." />
           <p class="setup__hint">需要 repo 权限（私有仓库读写）</p>
         </el-form-item>
 
@@ -26,10 +21,7 @@
         <el-divider>可选 · 后续阶段才会用</el-divider>
 
         <el-form-item label="Cloudflare Worker URL">
-          <el-input
-            v-model="form.workerUrl"
-            placeholder="https://notes-api.you.workers.dev"
-          />
+          <el-input v-model="form.workerUrl" placeholder="https://notes-api.you.workers.dev" />
         </el-form-item>
         <el-form-item label="Master Token">
           <el-input v-model="form.masterToken" type="password" show-password />

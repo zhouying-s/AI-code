@@ -22,9 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
   const masterToken = ref(initial.masterToken ?? '')
   const defaultBookSlug = ref(initial.defaultBookSlug ?? '')
 
-  const isConfigured = computed(
-    () => !!(githubPat.value && owner.value && repo.value),
-  )
+  const isConfigured = computed(() => !!(githubPat.value && owner.value && repo.value))
 
   function persist() {
     const data: AuthConfig = {
