@@ -6,17 +6,44 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "lint": "eslint . --ext .ts,.vue --max-warnings 0",
+    "lint:fix": "eslint . --ext .ts,.vue --fix",
+    "format": "prettier --write \"src/**/*.{ts,vue,scss,css,json,md}\"",
+    "typecheck": "vue-tsc -b --noEmit"
   },
   "dependencies": {
-    "vue": "^3.5.34"
+    "@element-plus/icons-vue": "^2.3.2",
+    "@octokit/rest": "^22.0.1",
+    "element-plus": "^2.14.0",
+    "gray-matter": "^4.0.3",
+    "pinia": "^3.0.4",
+    "sass-embedded": "^1.99.0",
+    "vditor": "^3.11.2",
+    "vue": "^3.5.34",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@pinia/testing": "^1.0.3",
     "@types/node": "^24.12.3",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-vue": "^6.0.6",
+    "@vitest/coverage-v8": "^4.1.6",
+    "@vue/test-utils": "^2.4.10",
     "@vue/tsconfig": "^0.9.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-vue": "^9.33.0",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.8.3",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
+    "vitest": "^4.1.6",
     "vue-tsc": "^3.2.8"
   }
 }
