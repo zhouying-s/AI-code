@@ -18,8 +18,9 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "@octokit/rest": "^22.0.1",
+    "@types/js-yaml": "^4.0.9",
     "element-plus": "^2.14.0",
-    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.1",
     "pinia": "^3.0.4",
     "sass-embedded": "^1.99.0",
     "vditor": "^3.11.2",
