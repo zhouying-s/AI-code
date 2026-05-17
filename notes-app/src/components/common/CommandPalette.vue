@@ -1,11 +1,5 @@
 <template>
-  <el-dialog
-    v-model="visible"
-    :show-close="false"
-    width="640"
-    top="10vh"
-    class="palette"
-  >
+  <el-dialog v-model="visible" :show-close="false" width="640" top="10vh" class="palette">
     <template #header>
       <div class="palette__header">
         <el-icon><Search /></el-icon>

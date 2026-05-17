@@ -43,9 +43,7 @@ describe('useSearchStore', () => {
           tags: ['t'],
         },
       ])
-      .mockResolvedValueOnce([
-        { id: 'b', slug: 'b', title: 'B', filePath: 'books/vue/b.md' },
-      ])
+      .mockResolvedValueOnce([{ id: 'b', slug: 'b', title: 'B', filePath: 'books/vue/b.md' }])
 
     const s = useSearchStore()
     await s.ensureIndex()
@@ -79,9 +77,7 @@ describe('useSearchStore', () => {
     const s = useSearchStore()
     s.$patch({
       indexBuilt: true,
-      results: [
-        { note: { id: 'x', bookSlug: 'r', title: 'X', filePath: 'p' }, score: 0.1 },
-      ],
+      results: [{ note: { id: 'x', bookSlug: 'r', title: 'X', filePath: 'p' }, score: 0.1 }],
     })
     s.invalidate()
     expect(s.indexBuilt).toBe(false)

@@ -4,11 +4,26 @@
     <aside v-if="!ui.treeCollapsed" class="shell__tree"><slot name="tree" /></aside>
     <main class="shell__main"><slot name="main" /></main>
   </div>
+  <CommandPalette v-model="showPalette" />
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useUiStore } from '@/stores/ui'
+import { useShortcut } from '@/composables/useShortcut'
+import CommandPalette from '@/components/common/CommandPalette.vue'
+
 const ui = useUiStore()
+const showPalette = ref(false)
+
+useShortcut('ctrl+j', (e) => {
+  e.preventDefault()
+  showPalette.value = !showPalette.value
+})
+useShortcut('meta+j', (e) => {
+  e.preventDefault()
+  showPalette.value = !showPalette.value
+})
 </script>
 
 <style scoped>
