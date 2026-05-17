@@ -15,12 +15,7 @@
         size="small"
         class="composer__tags"
       />
-      <el-button
-        type="primary"
-        size="small"
-        :disabled="!text.trim()"
-        @click="onSubmit"
-      >
+      <el-button type="primary" size="small" :disabled="!text.trim()" @click="onSubmit">
         添加
       </el-button>
     </div>

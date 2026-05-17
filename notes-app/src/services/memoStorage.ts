@@ -60,10 +60,7 @@ export function createMemo(args: {
   return memo
 }
 
-export function updateMemo(
-  id: string,
-  patch: { content?: string; tags?: string[] },
-): Memo | null {
+export function updateMemo(id: string, patch: { content?: string; tags?: string[] }): Memo | null {
   const memo = getMemo(id)
   if (!memo) return null
   const updated: Memo = {
