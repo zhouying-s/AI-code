@@ -13,7 +13,11 @@ export interface NoteMeta {
 
 export function parseFrontMatter(raw: string): { meta: NoteMeta; body: string } {
   const parsed = matter(raw)
-  return { meta: parsed.data as NoteMeta, body: parsed.content }
+  const meta: NoteMeta = {}
+  for (const [key, value] of Object.entries(parsed.data)) {
+    meta[key] = value instanceof Date ? value.toISOString() : value
+  }
+  return { meta, body: parsed.content }
 }
 
 export function stringifyFrontMatter(meta: NoteMeta, body: string): string {
