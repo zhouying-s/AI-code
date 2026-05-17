@@ -2,6 +2,7 @@ import { Octokit } from '@octokit/rest'
 import { useAuthStore } from '@/stores/auth'
 import { parseFrontMatter, stringifyFrontMatter, type NoteMeta } from '@/utils/frontMatter'
 import { encodeUtf8Base64, decodeUtf8Base64 } from '@/utils/base64'
+import { retry } from '@/utils/retry'
 import type { BookMeta, GithubConflictError, Note, NoteSummary } from '@/types'
 
 let cached: { token: string; client: Octokit } | null = null
@@ -31,13 +32,31 @@ export function getRepoCoords(): { owner: string; repo: string } {
   return { owner: auth.owner, repo: auth.repo }
 }
 
+function shouldRetryHttpError(err: unknown): boolean {
+  // Wrapped auth-expired errors from the Octokit hook must NOT retry.
+  if ((err as { authExpired?: boolean }).authExpired) return false
+  const status = (err as { status?: number }).status
+  if (status === undefined) return true // network error (fetch failed) — retry
+  if (status >= 500 && status < 600) return true // 5xx — retry
+  return false // 4xx (including 404, 401, 403) — do not retry
+}
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  return retry(fn, {
+    attempts: 3,
+    baseDelayMs: 200,
+    factor: 4,
+    shouldRetry: shouldRetryHttpError,
+  })
+}
+
 export async function listBooks(): Promise<BookMeta[]> {
   const octokit = getOctokit()
   const { owner, repo } = getRepoCoords()
   type Entry = { type: string; name: string }
   let entries: Entry[]
   try {
-    const res = await octokit.repos.getContent({ owner, repo, path: 'books' })
+    const res = await withRetry(() => octokit.repos.getContent({ owner, repo, path: 'books' }))
     entries = Array.isArray(res.data) ? (res.data as unknown as Entry[]) : []
   } catch (err) {
     if ((err as { status?: number }).status === 404) return []
@@ -48,11 +67,13 @@ export async function listBooks(): Promise<BookMeta[]> {
   const books: BookMeta[] = await Promise.all(
     dirs.map(async (dir) => {
       try {
-        const meta = await octokit.repos.getContent({
-          owner,
-          repo,
-          path: `books/${dir.name}/.book.json`,
-        })
+        const meta = await withRetry(() =>
+          octokit.repos.getContent({
+            owner,
+            repo,
+            path: `books/${dir.name}/.book.json`,
+          }),
+        )
         const data = meta.data as { content?: string; encoding?: string }
         const parsed = data.content ? JSON.parse(decodeUtf8Base64(data.content)) : {}
         return { slug: dir.name, name: parsed.name ?? dir.name, ...parsed }
@@ -68,12 +89,14 @@ export async function listNotes(bookSlug: string): Promise<NoteSummary[]> {
   const octokit = getOctokit()
   const { owner, repo } = getRepoCoords()
   type TreeEntry = { path?: string; type?: string; sha?: string }
-  const tree = await octokit.git.getTree({
-    owner,
-    repo,
-    tree_sha: 'HEAD',
-    recursive: 'true',
-  })
+  const tree = await withRetry(() =>
+    octokit.git.getTree({
+      owner,
+      repo,
+      tree_sha: 'HEAD',
+      recursive: 'true',
+    }),
+  )
   const prefix = `books/${bookSlug}/`
   const mdEntries = (tree.data.tree as TreeEntry[]).filter(
     (e) => e.type === 'blob' && e.path?.startsWith(prefix) && e.path.endsWith('.md'),
@@ -81,7 +104,9 @@ export async function listNotes(bookSlug: string): Promise<NoteSummary[]> {
 
   const summaries = await Promise.all(
     mdEntries.map(async (entry) => {
-      const res = await octokit.repos.getContent({ owner, repo, path: entry.path! })
+      const res = await withRetry(() =>
+        octokit.repos.getContent({ owner, repo, path: entry.path! }),
+      )
       const data = res.data as { content: string; sha: string }
       const raw = decodeUtf8Base64(data.content)
       const { meta } = parseFrontMatter(raw)
@@ -103,7 +128,7 @@ export async function listNotes(bookSlug: string): Promise<NoteSummary[]> {
 export async function getNote(filePath: string): Promise<Note> {
   const octokit = getOctokit()
   const { owner, repo } = getRepoCoords()
-  const res = await octokit.repos.getContent({ owner, repo, path: filePath })
+  const res = await withRetry(() => octokit.repos.getContent({ owner, repo, path: filePath }))
   const data = res.data as { content: string; sha: string }
   const raw = decodeUtf8Base64(data.content)
   const { meta, body } = parseFrontMatter(raw)

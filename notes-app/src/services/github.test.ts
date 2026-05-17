@@ -211,3 +211,35 @@ describe('deleteNote', () => {
     expect(call.sha).toBe('sha123')
   })
 })
+
+describe('retry behavior', () => {
+  it('listBooks retries on 500 then succeeds', async () => {
+    configAuth()
+    mockClient.repos.getContent
+      .mockRejectedValueOnce({ status: 500, message: 'transient' })
+      .mockResolvedValueOnce({
+        data: [{ type: 'dir', name: 'default' }],
+      })
+      .mockResolvedValueOnce({
+        data: { content: b64('{"name":"Default"}'), encoding: 'base64' },
+      })
+    const books = await listBooks()
+    expect(books).toHaveLength(1)
+    expect(mockClient.repos.getContent).toHaveBeenCalledTimes(3)
+  })
+
+  it('listBooks does NOT retry on 404', async () => {
+    configAuth()
+    mockClient.repos.getContent.mockRejectedValueOnce({ status: 404 })
+    const books = await listBooks()
+    expect(books).toEqual([])
+    expect(mockClient.repos.getContent).toHaveBeenCalledTimes(1)
+  })
+
+  it('listBooks does NOT retry on 401 (auth error)', async () => {
+    configAuth()
+    mockClient.repos.getContent.mockRejectedValueOnce({ status: 401 })
+    await expect(listBooks()).rejects.toBeDefined()
+    expect(mockClient.repos.getContent).toHaveBeenCalledTimes(1)
+  })
+})
