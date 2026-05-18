@@ -35,6 +35,14 @@ Thumbs.db
 .env.*.local
 .dev.vars
 .wrangler/
+密码.txt
+*.secrets.txt
+secrets/
+
+# stray screenshots at repo root
+/*.png
+/*.jpg
+/*.jpeg
 
 # misc
 .superpowers/

@@ -2,7 +2,6 @@
   <Teleport to="body">
     <div
       v-if="visible"
-      ref="menuRef"
       class="inline-ai"
       :style="{ left: position.x + 'px', top: position.y + 'px' }"
     >
@@ -42,7 +41,6 @@ const emit = defineEmits<{
   (e: 'append', text: string): void
 }>()
 
-const menuRef = ref<HTMLElement | null>(null)
 const resultText = ref('')
 const streaming = ref(false)
 
