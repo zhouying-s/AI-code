@@ -2,3 +2,14 @@ name = "notes-api"
 main = "src/index.ts"
 compatibility_date = "2026-05-17"
 compatibility_flags = ["nodejs_compat"]
+
+# KV namespace placeholder — id 在 Phase D 部署时用 wrangler kv:namespace create 生成后填回
+[[kv_namespaces]]
+binding = "NOTES_KV"
+id = "placeholder_replace_after_create"
+preview_id = "placeholder_replace_after_create"
+
+[vars]
+# 公共变量（非秘密）
+ALLOWED_ORIGINS = "http://localhost:5180,https://notes-app.pages.dev"
+# Secrets（MASTER_TOKEN、DEEPSEEK_API_KEY）用 `wrangler secret put` 设置，永远不进 toml
