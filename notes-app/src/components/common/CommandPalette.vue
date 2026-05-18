@@ -47,10 +47,7 @@
         v-for="q in searchStore.recentQueries"
         :key="q"
         class="palette__recent"
-        @click="
-          query = q
-          onInput()
-        "
+        @click="pickRecent(q)"
       >
         {{ q }}
       </div>
@@ -103,6 +100,11 @@ watch(visible, async (v) => {
 function onInput() {
   searchStore.query(query.value)
   selected.value = 0
+}
+
+function pickRecent(q: string) {
+  query.value = q
+  onInput()
 }
 
 function moveSel(delta: number) {
