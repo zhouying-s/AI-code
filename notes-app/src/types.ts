@@ -38,3 +38,20 @@ export interface GithubConflictError {
   remoteSha: string
   remoteContent: string
 }
+
+export interface ChatMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+  ts?: string
+}
+
+export interface AiSessionMeta {
+  id: string
+  title: string
+  model: string
+  createdAt: string
+  updatedAt: string
+  msgCount: number
+}
+
+export type DeepSeekModel = 'deepseek-chat' | 'deepseek-reasoner'
