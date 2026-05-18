@@ -2,12 +2,13 @@ name = "notes-api"
 main = "src/index.ts"
 compatibility_date = "2026-05-17"
 compatibility_flags = ["nodejs_compat"]
+account_id = "d6fd7dd22b8ab7f82ec92d28a0e9a989"
 
-# KV namespace placeholder — id 在 Phase D 部署时用 wrangler kv:namespace create 生成后填回
+# KV namespace（Phase D 部署时生成的真实 id）
 [[kv_namespaces]]
 binding = "NOTES_KV"
-id = "placeholder_replace_after_create"
-preview_id = "placeholder_replace_after_create"
+id = "3eb662739d244493be2a93c19bbfe03b"
+preview_id = "049e4cf6e1694599bd810f16ade5fd1c"
 
 [vars]
 # 公共变量（非秘密）
