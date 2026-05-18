@@ -14,6 +14,13 @@
             placeholder="无标题"
             @input="onTitleChange(($event.target as HTMLInputElement).value)"
           />
+          <el-button
+            text
+            size="small"
+            :icon="favorites.isNoteFavorite(currentNote.id) ? StarFilled : Star"
+            :type="favorites.isNoteFavorite(currentNote.id) ? 'primary' : 'default'"
+            @click="favorites.toggleNote(currentNote.id)"
+          />
           <span class="editor-status">{{ statusText }}</span>
           <el-button
             text
@@ -49,8 +56,10 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import ConflictDialog from '@/components/common/ConflictDialog.vue'
 import { useBooksStore } from '@/stores/books'
 import { useNotesStore } from '@/stores/notes'
+import { useFavoritesStore } from '@/stores/favorites'
 import { debounce } from '@/utils/debounce'
 import { ElMessage } from 'element-plus'
+import { Star, StarFilled } from '@element-plus/icons-vue'
 import type { NoteSummary } from '@/types'
 
 // Declared to consume route params passed via `props: true` (avoids Vue warning
@@ -60,6 +69,7 @@ defineProps<{ bookSlug?: string; noteId?: string }>()
 const route = useRoute()
 const booksStore = useBooksStore()
 const notesStore = useNotesStore()
+const favorites = useFavoritesStore()
 const { current: currentNote, saveStatus } = storeToRefs(notesStore)
 
 const showConflict = ref(false)
