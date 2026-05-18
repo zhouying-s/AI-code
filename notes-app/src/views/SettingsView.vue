@@ -7,6 +7,7 @@
         <nav>
           <a href="#auth">凭据</a>
           <a href="#sync">同步</a>
+          <a href="#migration">云端迁移</a>
           <a href="#export">导出配置码</a>
           <a href="#danger">危险操作</a>
         </nav>
@@ -51,6 +52,28 @@
           </el-form>
         </section>
 
+        <section id="migration">
+          <h2>云端迁移</h2>
+          <p class="hint">把当前浏览器的小记 + 收藏一次性上传到 Cloudflare KV。</p>
+          <el-button :loading="testingConn" @click="testConnection"> 测试 Worker 连接 </el-button>
+          <el-button
+            type="primary"
+            :loading="migrating"
+            :disabled="!form.workerUrl"
+            @click="onMigrate"
+          >
+            上传到云端
+          </el-button>
+          <p v-if="migrationResult" class="result">
+            上传完成：{{ migrationResult.memos }} 条小记 · 收藏笔记
+            {{ migrationResult.favorites.notes }} 条 · 收藏小记
+            {{ migrationResult.favorites.memos }} 条
+            <span v-if="migrationResult.errors.length > 0" class="result__err">
+              ({{ migrationResult.errors.length }} 条失败)
+            </span>
+          </p>
+        </section>
+
         <section id="export">
           <h2>导出配置码（给浏览器插件粘）</h2>
           <p class="hint">这串 base64 字符串包含上面所有凭据。妥善保管。</p>
@@ -74,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppShell from '@/components/layout/AppShell.vue'
 import PrimarySidebar from '@/components/layout/PrimarySidebar.vue'
@@ -83,6 +106,8 @@ import { useBooksStore } from '@/stores/books'
 import { ElMessage } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import { encodeUtf8Base64 } from '@/utils/base64'
+import { migrateToWorker, type MigrationResult } from '@/services/migration'
+import { workerJson } from '@/services/workerClient'
 
 const auth = useAuthStore()
 const booksStore = useBooksStore()
@@ -96,6 +121,10 @@ const form = reactive({
   masterToken: auth.masterToken,
   defaultBookSlug: auth.defaultBookSlug,
 })
+
+const testingConn = ref(false)
+const migrating = ref(false)
+const migrationResult = ref<MigrationResult | null>(null)
 
 const configCode = computed(() =>
   encodeUtf8Base64(
@@ -124,6 +153,38 @@ function onClear() {
   auth.clear()
   ElMessage.success('已清空，将重定向到向导')
   router.push({ name: 'setup' })
+}
+
+async function testConnection() {
+  // 用最新表单里的值，先保存一次，让 workerClient 能读到
+  auth.setConfig({ ...form })
+  testingConn.value = true
+  try {
+    await workerJson('/api/memos')
+    ElMessage.success('Worker 连接成功')
+  } catch (e) {
+    ElMessage.error('连接失败：' + (e as Error).message)
+  } finally {
+    testingConn.value = false
+  }
+}
+
+async function onMigrate() {
+  auth.setConfig({ ...form })
+  migrating.value = true
+  migrationResult.value = null
+  try {
+    migrationResult.value = await migrateToWorker()
+    if (migrationResult.value.errors.length === 0) {
+      ElMessage.success('全部上传成功')
+    } else {
+      ElMessage.warning(`部分失败：${migrationResult.value.errors.length} 条`)
+    }
+  } catch (e) {
+    ElMessage.error('上传失败：' + (e as Error).message)
+  } finally {
+    migrating.value = false
+  }
 }
 </script>
 
@@ -159,6 +220,14 @@ function onClear() {
 .hint {
   color: var(--color-text-tertiary);
   font-size: 13px;
+}
+.result {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+.result__err {
+  color: var(--color-danger);
 }
 .save-bar {
   background: #fff;
