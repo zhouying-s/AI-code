@@ -80,10 +80,7 @@ export const useAiStore = defineStore('ai', () => {
     try {
       for await (const delta of ai.streamChat({ model: model.value, messages: allMessages })) {
         assistantMsg.content += delta
-        currentMessages.value = [
-          ...currentMessages.value.slice(0, -1),
-          { ...assistantMsg },
-        ]
+        currentMessages.value = [...currentMessages.value.slice(0, -1), { ...assistantMsg }]
       }
       await ai.appendMessage(currentSessionId.value, assistantMsg)
     } catch (e) {

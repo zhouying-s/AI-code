@@ -28,9 +28,7 @@ export async function deleteSession(id: string): Promise<void> {
 }
 
 export async function getMessages(id: string): Promise<ChatMessage[]> {
-  const res = await workerJson<{ messages: ChatMessage[] }>(
-    `/api/ai/sessions/${id}/messages`,
-  )
+  const res = await workerJson<{ messages: ChatMessage[] }>(`/api/ai/sessions/${id}/messages`)
   return res.messages
 }
 

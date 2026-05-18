@@ -17,9 +17,7 @@
         :key="i"
         :msg="m"
         :streaming="
-          store.streaming &&
-          i === store.currentMessages.length - 1 &&
-          m.role === 'assistant'
+          store.streaming && i === store.currentMessages.length - 1 && m.role === 'assistant'
         "
         @insert="onInsert"
       />
@@ -35,12 +33,7 @@
         @keydown.ctrl.enter.prevent="onSend"
         @keydown.meta.enter.prevent="onSend"
       />
-      <el-button
-        type="primary"
-        :loading="store.streaming"
-        :disabled="!text.trim()"
-        @click="onSend"
-      >
+      <el-button type="primary" :loading="store.streaming" :disabled="!text.trim()" @click="onSend">
         发送
       </el-button>
     </footer>
